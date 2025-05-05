@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Intake Tracker</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #e6f7ff;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #f0f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2, h3 {
+            color: #0066cc;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .date {
+            text-align: center;
+            color: #0066cc;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        /* Progress Styles */
+        .progress-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .water-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            border: 8px solid #d4edff;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        
+        .water-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #66b3ff;
+            transition: height 0.3s ease;
+        }
+        
+        .water-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+            width: 100%;
+        }
+        
+        .water-info .amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .water-info .goal {
+            font-size: 12px;
+            color: #0066cc;
+        }
+        
+        .progress-text {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        /* Goal Setting */
+        .goal-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #d4edff;
+            border-radius: 8px;
+        }
+        
+        .goal-setting label {
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .goal-controls {
+            display: flex;
+            align-items: center;
+        }
+        
+        .goal-controls button {
+            width: 30px;
+            height: 30px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .goal-controls button:hover {
+            background-color: #004c99;
+        }
+        
+        .goal-controls input {
+            width: 60px;
+            text-align: center;
+            margin: 0 5px;
+            padding: 5px;
+            border: 1px solid #0066cc;
+            border-radius: 4px;
+        }
+        
+        /* Water Control Buttons */
+        .water-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .water-button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-250 {
+            background-color: #3399ff;
+        }
+        
+        .add-500 {
+            background-color: #0066cc;
+        }
+        
+        .remove-water {
+            background-color: #ff9999;
+        }
+        
+        .reset-day {
+            background-color: #ff6666;
+        }
+        
+        .water-button:hover {
+            opacity: 0.9;
+        }
+        
+        .water-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        /* Custom Amount */
+        .custom-amount {
+            display: flex;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        .custom-amount input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #0066cc;
+            border-radius: 8px;
+        }
+        
+        .custom-amount button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .custom-amount button:hover {
+            background-color: #004c99;
+        }
+        
+        /* Log & History */
+        .log-section, .history-section {
+            margin: 20px 0;
+        }
+        
+        .log-section h3, .history-section h3 {
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 18px;
+        }
+        
+        .log-container, .history-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .achievement {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .achievement-icon {
+            margin-right: 5px;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .water-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Water Intake Tracker</h1>
+        <div class="date" id="currentDate">Loading date...</div>
+        
+        <!-- Progress Section -->
+        <div class="progress-container">
+            <div class="water-container">
+                <div class="water-level" id="waterLevel"></div>
+                <div class="water-info">
+                    <div class="amount" id="currentAmount">0 ml</div>
+                    <div class="goal" id="goalDisplay">of 2000 ml</div>
+                </div>
+            </div>
+            <div class="progress-text" id="progressText">0% of daily goal</div>
+        </div>
+        
+        <!-- Goal Setting -->
+        <div class="goal-setting">
+            <label for="goalInput">Daily Goal (ml):</label>
+            <div class="goal-controls">
+                <button id="decreaseGoal">-</button>
+                <input type="number" id="goalInput" value="2000" min="250" step="250">
+                <button id="increaseGoal">+</button>
+            </div>
+        </div>
+        
+        <!-- Water Control Buttons -->
+        <div class="water-controls">
+            <button class="water-button add-250" id="add250">
+                <span class="water-icon">💧</span> Add 250ml
+            </button>
+            <button class="water-button add-500" id="add500">
+                <span class="water-icon">💧</span> Add 500ml
+            </button>
+            <button class="water-button remove-water" id="remove250">
+                <span class="water-icon">-</span> Remove 250ml
+            </button>
+            <button class="water-button reset-day" id="resetDay">
+                <span class="water-icon">🔄</span> Reset Day
+            </button>
+        </div>
+        
+        <!-- Custom Amount -->
+        <div class="custom-amount">
+            <input type="number" id="customAmount" placeholder="Custom amount (ml)" min="1">
+            <button id="addCustom">Add</button>
+        </div>
+        
+        <!-- Today's Log -->
+        <div class="log-section">
+            <h3>Today's Log</h3>
+            <div class="log-container">
+                <table id="logTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Amount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody">
+                        <tr>
+                            <td colspan="3">No entries yet today.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Previous Days -->
+        <div class="history-section" id="historySection" style="display: none;">
+            <h3>Previous Days</h3>
+            <div class="history-container">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Intake</th>
+                            <th>Goal</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- History entries will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize app state
+        let state = {
+            goal: 2000,
+            intake: 0,
+            log: [],
+            history: [],
+            lastUpdated: null
+        };
+
+        // DOM Elements
+        const elements = {
+            currentDate: document.getElementById('currentDate'),
+            waterLevel: document.getElementById('waterLevel'),
+            currentAmount: document.getElementById('currentAmount'),
+            goalDisplay: document.getElementById('goalDisplay'),
+            progressText: document.getElementById('progressText'),
+            goalInput: document.getElementById('goalInput'),
+            decreaseGoal: document.getElementById('decreaseGoal'),
+            increaseGoal: document.getElementById('increaseGoal'),
+            add250: document.getElementById('add250'),
+            add500: document.getElementById('add500'),
+            remove250: document.getElementById('remove250'),
+            resetDay: document.getElementById('resetDay'),
+            customAmount: document.getElementById('customAmount'),
+            addCustom: document.getElementById('addCustom'),
+            logBody: document.getElementById('logBody'),
+            historySection: document.getElementById('historySection'),
+            historyBody: document.getElementById('historyBody')
+        };
+
+        // Helper functions
+        function calculateProgress() {
+            return Math.min((state.intake / state.goal) * 100, 100);
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        function addWater(amount) {
+            // Add water to intake
+            state.intake += amount;
+            
+            // Add to log
+            const now = new Date();
+            state.log.push({
+                time: formatTime(now),
+                amount: amount,
+                total: state.intake
+            });
+            
+            // Update UI
+            updateDisplay();
+            updateLogDisplay();
+            saveData();
+            
+            // Show achievement if goal reached
+            if (calculateProgress() >= 100 && amount > 0) {
+                alert('Congratulations! You\'ve reached your daily water goal! 🎉');
+            }
+        }
+        
+        function removeWater(amount) {
+            // Cannot go below 0
+            if (state.intake < amount) {
+                alert('Cannot remove more than current intake.');
+                return;
+            }
+            
+            // Remove water from intake
+            state.intake -= amount;
+            
+            // Add to log with negative amount
+            const now = new Date();
+            state.log.push({
+                time: formatTime(now),
+                amount: -amount,
+                total: state.intake
+            });
+            
+            // Update UI
+            updateDisplay();
+            updateLogDisplay();
+            saveData();
+        }
+        
+        function resetDay() {
+            // Confirm before resetting
+            if (state.intake === 0 || !confirm('Are you sure you want to reset today\'s data?')) {
+                return;
+            }
+            
+            // Add current day to history before resetting
+            const today = new Date().toLocaleDateString('en-US');
+            state.history.push({
+                date: today,
+                intake: state.intake,
+                goal: state.goal
+            });
+            
+            // Reset intake and log
+            state.intake = 0;
+            state.log = [];
+            
+            // Update UI
+            updateDisplay();
+            updateLogDisplay();
+            updateHistoryDisplay();
+            saveData();
+        }
+        
+        function updateGoal(newGoal) {
+            // Validate goal
+            newGoal = parseInt(newGoal);
+            if (isNaN(newGoal) || newGoal <= 0) {
+                alert('Please enter a valid goal (greater than 0).');
+                elements.goalInput.value = state.goal;
+                return;
+            }
+            
+            // Update goal
+            state.goal = newGoal;
+            
+            // Update UI
+            updateDisplay();
+            saveData();
+        }
+        
+        function setupEventListeners() {
+            // Goal buttons
+            elements.decreaseGoal.addEventListener('click', function() {
+                const newGoal = Math.max(state.goal - 250, 250);
+                elements.goalInput.value = newGoal;
+                updateGoal(newGoal);
+            });
+            
+            elements.increaseGoal.addEventListener('click', function() {
+                const newGoal = state.goal + 250;
+                elements.goalInput.value = newGoal;
+                updateGoal(newGoal);
+            });
+            
+            elements.goalInput.addEventListener('change', function() {
+                updateGoal(this.value);
+            });
+            
+            // Water control buttons
+            elements.add250.addEventListener('click', function() {
+                addWater(250);
+            });
+            
+            elements.add500.addEventListener('click', function() {
+                addWater(500);
+            });
+            
+            elements.remove250.addEventListener('click', function() {
+                removeWater(250);
+            });
+            
+            elements.resetDay.addEventListener('click', resetDay);
+            
+            // Custom amount
+            elements.addCustom.addEventListener('click', function() {
+                const amount = parseInt(elements.customAmount.value);
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Please enter a valid amount.');
+                    return;
+                }
+                
+                addWater(amount);
+                elements.customAmount.value = '';  // Clear input
+            });
+            
+            // Also allow Enter key in custom amount field
+            elements.customAmount.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    elements.addCustom.click();
+                }
+            });
+        }
+        
+        function saveData() {
+            // Save data to localStorage
+            const data = {
+                goal: state.goal,
+                intake: state.intake,
+                log: state.log,
+                history: state.history,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('waterTrackerData', JSON.stringify(data));
+        }
+        
+        function loadData() {
+            // Try to load data from localStorage
+            const savedData = localStorage.getItem('waterTrackerData');
+            if (!savedData) return;
+            
+            try {
+                const data = JSON.parse(savedData);
+                
+                // Set goal
+                state.goal = data.goal || 2000;
+                
+                // Check if we need to reset for a new day
+                const lastDate = data.lastUpdated ? new Date(data.lastUpdated) : null;
+                const today = new Date();
+                
+                if (!lastDate || new Date(lastDate).toDateString() !== today.toDateString()) {
+                    // New day - reset intake but keep history
+                    if (data.intake > 0) {
+                        // Add previous data to history
+                        const prevDate = lastDate ? new Date(lastDate).toLocaleDateString('en-US') : 'Previous day';
+                        state.history = [
+                            ...(data.history || []),
+                            {
+                                date: prevDate,
+                                intake: data.intake,
+                                goal: data.goal
+                            }
+                        ];
+                    } else {
+                        state.history = data.history || [];
+                    }
+                    
+                    // Reset for today
+                    state.intake = 0;
+                    state.log = [];
+                } else {
+                    // Same day - restore data
+                    state.intake = data.intake || 0;
+                    state.log = data.log || [];
+                    state.history = data.history || [];
+                }
+            } catch (error) {
+                console.error('Error loading saved data:', error);
+                // Continue with default values
+            }
+        }
+
+        function updateLogDisplay() {
+            // Clear current log entries
+            elements.logBody.innerHTML = '';
+            
+            // Add log entries or display "no entries" message
+            if (state.log.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="3">No entries yet today.</td>';
+                elements.logBody.appendChild(row);
+            } else {
+                // Add each log entry
+                state.log.forEach(entry => {
+                    const row = document.createElement('tr');
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = entry.time;
+                    
+                    const amountCell = document.createElement('td');
+                    const isPositive = entry.amount > 0;
+                    amountCell.textContent = `${isPositive ? '+' : ''}${entry.amount} ml`;
+                    amountCell.className = isPositive ? 'positive' : 'negative';
+                    
+                    const totalCell = document.createElement('td');
+                    totalCell.textContent = `${entry.total} ml`;
+                    
+                    row.appendChild(timeCell);
+                    row.appendChild(amountCell);
+                    row.appendChild(totalCell);
+                    
+                    elements.logBody.appendChild(row);
+                });
+            }
+        }
+        
+        function updateHistoryDisplay() {
+            // Show or hide history section based on whether we have history
+            if (state.history.length === 0) {
+                elements.historySection.style.display = 'none';
+                return;
+            }
+            
+            elements.historySection.style.display = 'block';
+            elements.historyBody.innerHTML = '';
+            
+            // Add history entries (most recent first)
+            [...state.history].reverse().forEach(entry => {
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = entry.date;
+                
+                const intakeCell = document.createElement('td');
+                intakeCell.textContent = `${entry.intake} ml`;
+                
+                const goalCell = document.createElement('td');
+                goalCell.textContent = `${entry.goal} ml`;
+                
+                const percentCell = document.createElement('td');
+                const percent = Math.round((entry.intake / entry.goal) * 100);
+                percentCell.textContent = `${percent}%`;
+                if (percent >= 100) {
+                    percentCell.className = 'positive';
+                }
+                
+                row.appendChild(dateCell);
+                row.appendChild(intakeCell);
+                row.appendChild(goalCell);
+                row.appendChild(percentCell);
+                
+                elements.historyBody.appendChild(row);
+            });
+        }
+
+        function updateDisplay() {
+            // Update water level
+            const progress = calculateProgress();
+            elements.waterLevel.style.height = `${progress}%`;
+            
+            // Update text displays
+            elements.currentAmount.textContent = `${state.intake} ml`;
+            elements.goalDisplay.textContent = `of ${state.goal} ml`;
+            
+            // Update progress text
+            if (progress >= 100) {
+                elements.progressText.innerHTML = '<span class="achievement"><span class="achievement-icon">🏆</span> Goal reached!</span>';
+            } else {
+                elements.progressText.textContent = `${Math.round(progress)}% of daily goal`;
+            }
+            
+            // Update goal input
+            elements.goalInput.value = state.goal;
